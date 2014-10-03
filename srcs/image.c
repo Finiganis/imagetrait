@@ -1,46 +1,42 @@
-#include<stdlib.h>
-#include<string.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdio.h>
+#include <errno.h>
 #include "image.h"
 
-typedef struct{
-unsigned long w;
-unsigned long h;
-char *path;
-unsigned char *buff;
-} image_t;
 
 
-image_t *creer_image(){
+image_t *creer_image() {
   image_t *img = calloc(1, sizeof(image_t));
-  if(img == NULL){
+  if(img == NULL) {
     perror("créer_image");
   }
   return img;
 }
 
-image_t *copier_image(image_t *src){
+image_t *copier_image(image_t *src) {
   image_t *dst = creer_image();
   dst->w = src->w;
   dst->h = src->h;
-  if(src->path){
+  if(src->path) {
     dst->path = strdup(src->path);
   }
-  if(dst->path == NULL){
+  if(dst->path == NULL) {
     perror("copier_image");
   }
-  if(src->buff){
-    dst->buff = ùammoc(sizeof(char)*scr->w*src->h);
+  if(src->buff) {
+    dst->buff = malloc(sizeof(char) * src->w * src->h);
   }
-  if(dst->buff){
-    memcopy(dst->buff, src->buff, sizeof(char) * src->w * src->h);
-  } else{
-    perror("copier-image")
+  if(dst->buff) {
+    memcpy(dst->buff, src->buff, sizeof(char) * src->w * src->h);
+  } else {
+    perror("copier-image");
   }
   return dst;
 }
 
-void detruire_image(image_t *p){
-  if(p){
+void detruire_image(image_t *p) {
+  if(p) {
     if(p->path){
       free(p->path);
     }
@@ -53,7 +49,7 @@ void detruire_image(image_t *p){
 
 
 // Ici commence le test <-
-int main(){
+int main() {
   image_t *test = creer_image();
   image_t *test2 = copier_image();
   printf("%d %d \n%d %d", test->w, test->h, test2->w, test2->h);
