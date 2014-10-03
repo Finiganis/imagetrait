@@ -2,35 +2,47 @@
 #include <string.h>
 #include <stdio.h>
 #include <errno.h>
+
 #include "image.h"
 
+uint8_t val_image(image_t *image, uint32_t i, uint32_t j) {
+  return (image->buff[i * image->w + j]);
+}
 
-
-image_t *creer_image() {
-  image_t *img = calloc(1, sizeof(image_t));
-  if(img == NULL) {
-    perror("créer_image");
+image_t *creer_image(char *path) {
+  image_t *img = NULL;
+  if (path) {
+    img->path = strdup(path);
+    if ((img =  calloc(1, sizeof(image_t));
+  } else {
+    perror("creer_image: Error fail on malloc or incorrect path.");
   }
   return img;
 }
 
+image_t *creer_image_wh(char *path, uint32_t w, uint32_t h) {
+  image_t *image = creer_image(path);
+  image->w = w;
+  image->h = h;
+
+  return (image);
+}
+
 image_t *copier_image(image_t *src) {
-  image_t *dst = creer_image();
-  dst->w = src->w;
-  dst->h = src->h;
   if(src->path) {
-    dst->path = strdup(src->path);
-  }
-  if(dst->path == NULL) {
-    perror("copier_image");
-  }
-  if(src->buff) {
-    dst->buff = malloc(sizeof(char) * src->w * src->h);
+    image_t *dst = creer_image_wh(src->path, src->w, src->h);
+    if(src->buff) {
+      dst->buff = malloc(sizeof(char) * src->w * src->h);
+    } else {
+      perror("copier_image: Error there is no source buffer");
+    }
+  } else {
+    perror("copier_image: Error path to image source is invalid.");
   }
   if(dst->buff) {
     memcpy(dst->buff, src->buff, sizeof(char) * src->w * src->h);
   } else {
-    perror("copier-image");
+    perror("copier-image: Error malloc failled to allocate the destination buffer.");
   }
   return dst;
 }
