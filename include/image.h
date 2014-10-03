@@ -3,13 +3,13 @@
 
 #define VAL(img,i,j) (img)->buff[(i)*(img)->w+(j)]
 
-typedef struct
-	{
-	unsigned long w; // largeur en pixels
-	unsigned long h; // hauteur en pixels
-	char *path; // le chemin absolu du fichier correspondant
-	unsigned char *buff; // w x h octets correspondant aux pixels
-	} image_t;
+
+typedef struct image_ {
+  unsigned long w; // largeur en pixels
+  unsigned long h; // hauteur en pixels
+  char *path; // le chemin absolu du fichier correspondant
+  unsigned char *buff; // w x h octets correspondant aux pixels
+} image_t;
 
 image_t *creer_image();
 
