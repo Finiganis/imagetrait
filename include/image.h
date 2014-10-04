@@ -1,5 +1,5 @@
 #ifndef IMAGE_H
-#define IMAGE_G
+#define IMAGE_H
 
 #include <stdint.h>
 
@@ -13,9 +13,10 @@ typedef struct image_ {
   uint8_t *buff; // w * x * h octets correspondant aux pixels
 } image_t;
 
-uint8_t val_image(image_t *image, uint32_t i, uint32_t j);
 image_t *creer_image(char *path);
 image_t *copier_image(image_t *src);
+image_t *creer_image_wh(char *path, uint32_t w, uint32_t h);
+uint8_t val_image(image_t *image, uint32_t i, uint32_t j);
 void detruire_image(image_t *p);
 
 #endif /* IMAGE_H */

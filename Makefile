@@ -30,7 +30,7 @@ OBJDIR = ./objs
 INCDIR = ./include
 
 SRCS = image.c noyau.c trans_image.c pgm_image.c noyaux.c pile_image_basic.c \
-	   guimpe.c guimpe_callback.c
+	   guimpe.c guimpe_callback.c my_string.c
 OBJS = $(SRCS:.c=.o)
 OBJS_PREF = $(addprefix $(OBJDIR)/, $(OBJS))
 NAME = guimpe_basic

@@ -1,9 +1,12 @@
 #include <stdlib.h>
-#include <string.h>
 #include <stdio.h>
 #include <errno.h>
+#include <string.h>
+#include <stdint.h>
+
 
 #include "image.h"
+#include "my_string.h"
 
 uint8_t val_image(image_t *image, uint32_t i, uint32_t j) {
   return (image->buff[i * image->w + j]);
@@ -12,12 +15,15 @@ uint8_t val_image(image_t *image, uint32_t i, uint32_t j) {
 image_t *creer_image(char *path) {
   image_t *img = NULL;
   if (path) {
-    img->path = strdup(path);
-    if ((img =  calloc(1, sizeof(image_t));
+    if ((img = calloc(1, sizeof(image_t)))) {
+      img->path = my_strdup(path);
+    } else {
+      perror("creer_image: Fail on allocating an image.");
+    }
   } else {
     perror("creer_image: Error fail on malloc or incorrect path.");
   }
-  return img;
+  return (img);
 }
 
 image_t *creer_image_wh(char *path, uint32_t w, uint32_t h) {
@@ -29,22 +35,24 @@ image_t *creer_image_wh(char *path, uint32_t w, uint32_t h) {
 }
 
 image_t *copier_image(image_t *src) {
+  image_t *dst = NULL;
   if(src->path) {
-    image_t *dst = creer_image_wh(src->path, src->w, src->h);
+    dst = creer_image_wh(src->path, src->w, src->h);
     if(src->buff) {
       dst->buff = malloc(sizeof(char) * src->w * src->h);
+      if ((dst->buff = malloc(sizeof(char) * src->w * src->h))) {
+        memcpy(dst->buff, src->buff,
+                sizeof(char) * src->w * src->h);
+      } else {
+        perror("copier-image: Error malloc failled to allocate the destination buffer.");
+      }
     } else {
       perror("copier_image: Error there is no source buffer");
     }
   } else {
     perror("copier_image: Error path to image source is invalid.");
   }
-  if(dst->buff) {
-    memcpy(dst->buff, src->buff, sizeof(char) * src->w * src->h);
-  } else {
-    perror("copier-image: Error malloc failled to allocate the destination buffer.");
-  }
-  return dst;
+  return (dst);
 }
 
 void detruire_image(image_t *p) {
@@ -57,15 +65,5 @@ void detruire_image(image_t *p) {
     }
     free(p);
   }
-}
-
-
-// Ici commence le test <-
-int main() {
-  image_t *test = creer_image();
-  image_t *test2 = copier_image();
-  printf("%d %d \n%d %d", test->w, test->h, test2->w, test2->h);
-  detruire_image(test2);
-  detruire_image(test);
 }
 
