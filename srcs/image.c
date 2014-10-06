@@ -15,7 +15,8 @@ uint8_t val_image(image_t *image, uint32_t i, uint32_t j) {
 image_t *creer_image(char *path) {
   image_t *img = NULL;
   if (path) {
-    if ((img = calloc(1, sizeof(image_t)))) {
+    img = calloc(1, sizeof(image_t));
+    if (img) {
       img->path = my_strdup(path);
     } else {
       perror("creer_image: Fail on allocating an image.");
@@ -40,9 +41,10 @@ image_t *copier_image(image_t *src) {
     dst = creer_image_wh(src->path, src->w, src->h);
     if(src->buff) {
       dst->buff = malloc(sizeof(char) * src->w * src->h);
-      if ((dst->buff = malloc(sizeof(char) * src->w * src->h))) {
-        memcpy(dst->buff, src->buff,
-                sizeof(char) * src->w * src->h);
+      if (dst->buff) {
+        memcpy(dst->buff,
+            src->buff,
+            sizeof(char) * src->w * src->h);
       } else {
         perror("copier-image: Error malloc failled to allocate the destination buffer.");
       }
@@ -57,10 +59,10 @@ image_t *copier_image(image_t *src) {
 
 void detruire_image(image_t *p) {
   if(p) {
-    if(p->path){
+    if(p->path) {
       free(p->path);
     }
-    if(p->buff){
+    if(p->buff) {
       free(p->buff);
     }
     free(p);
