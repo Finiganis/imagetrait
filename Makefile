@@ -4,6 +4,7 @@
 # | auteurs: Corentin Ulliac, Axel Viala
 
 CFLAGS = -Wall -Wextra -Werror -pedantic -pedantic-errors -std=c99 \
+		 -Wno-unused-result
 # LDFLAGS =
 
 SRCDIR = ./srcs

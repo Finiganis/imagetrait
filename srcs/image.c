@@ -11,14 +11,34 @@ uint8_t val_image(image_t *image, size_t i, size_t j) {
   return (image->buff[i * image->w + j]);
 }
 
-image_t *creer_image(const char *path) {
+image_t *copier_image_sup(image_t *src) {
+  image_t *dst = NULL;
+  if (src) {
+    dst = creer_image_wh(src->path, src->w, src->h);
+    dst->buff = malloc(sizeof(char) * src->w * src->h);
+  } else {
+    perror("copier_image: ");
+  }
+  return dst;
+}
+
+image_t *creer_image(void) {
+  image_t *img = NULL;
+
+  img = malloc(sizeof(image_t));
+  if (!img) {
+  } else {
+    perror("creer_image: Fail on allocating an image.");
+  }
+  return (img);
+}
+
+image_t *creer_image_path(const char *path) {
   image_t *img = NULL;
   if (path) {
-    img = calloc(1, sizeof(image_t));
+    creer_image();
     if (img) {
       img->path = my_strdup(path);
-    } else {
-      perror("creer_image: Fail on allocating an image.");
     }
   } else {
     perror("creer_image: Error fail on malloc or incorrect path.");
@@ -27,7 +47,7 @@ image_t *creer_image(const char *path) {
 }
 
 image_t *creer_image_wh(const char *path, uint32_t w, uint32_t h) {
-  image_t *image = creer_image(path);
+  image_t *image = creer_image_path(path);
   image->w = w;
   image->h = h;
 
@@ -45,7 +65,8 @@ image_t *copier_image(image_t *src) {
             src->buff,
             sizeof(char) * src->w * src->h);
       } else {
-        perror("copier-image: Error malloc failled to allocate the destination buffer.");
+        perror("copier-image: Error malloc failled "
+            "to allocate the destination buffer.");
       }
     } else {
       perror("copier_image: Error there is no source buffer");

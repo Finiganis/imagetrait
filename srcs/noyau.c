@@ -42,7 +42,7 @@ void read_core(FILE *file, noyau_t *pn) {
   for (size_t y = 0, x = 0; y < pn->dim; y++, x = 0) {
     for (; x < pn->dim; x++) {
       const size_t cur = x + y * pn->dim;
-      fscanf(file, "%du", &pn->coeffs[cur]);
+      fscanf(file, "%d", &pn->coeffs[cur]);
     }
   }
 }
@@ -55,7 +55,7 @@ noyau_t *charger_noyau(const char *nom_fichier) {
 
     if (file) {
       uint32_t dim = 0;
-      fscanf(file, "%d", &dim);
+      (void)fscanf(file, "%u", &dim);
       core = creer_noyau(dim);
       if (core) {
         read_core(file, core);
