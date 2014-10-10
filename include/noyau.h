@@ -1,16 +1,15 @@
-#ifndef NOYAU_
-#define NOYAU_
+#ifndef NOYAU_H
+#define NOYAU_H
 
-typedef struct
-	{
-	unsigned int dim;
-	int *coeffs;
-	} noyau_t;
+#include <stdint.h>
 
-noyau_t *creer_noyau(unsigned int dim);
+typedef struct {
+  uint32_t dim;
+  int32_t *coeffs;
+} noyau_t;
 
+noyau_t *creer_noyau(uint32_t dim);
 void detruire_noyau(noyau_t *pn);
-
-noyau_t *charger_noyau(char *nom_fic);
+noyau_t *charger_noyau(const char *nom_fichier);
 
 #endif

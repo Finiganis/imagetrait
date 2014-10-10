@@ -4,15 +4,14 @@
 #include <string.h>
 #include <stdint.h>
 
-
 #include "image.h"
 #include "my_string.h"
 
-uint8_t val_image(image_t *image, uint32_t i, uint32_t j) {
+uint8_t val_image(image_t *image, size_t i, size_t j) {
   return (image->buff[i * image->w + j]);
 }
 
-image_t *creer_image(char *path) {
+image_t *creer_image(const char *path) {
   image_t *img = NULL;
   if (path) {
     img = calloc(1, sizeof(image_t));
@@ -27,7 +26,7 @@ image_t *creer_image(char *path) {
   return (img);
 }
 
-image_t *creer_image_wh(char *path, uint32_t w, uint32_t h) {
+image_t *creer_image_wh(const char *path, uint32_t w, uint32_t h) {
   image_t *image = creer_image(path);
   image->w = w;
   image->h = h;
