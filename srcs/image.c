@@ -1,63 +1,70 @@
-#include<stdlib.h>
-#include<string.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <errno.h>
+#include <string.h>
+#include <stdint.h>
+
 #include "image.h"
+#include "my_string.h"
 
-typedef struct{
-unsigned long w;
-unsigned long h;
-char *path;
-unsigned char *buff;
-} image_t;
-
-
-image_t *creer_image(){
-  image_t *img = calloc(1, sizeof(image_t));
-  if(img == NULL){
-    perror("créer_image");
-  }
-  return img;
+uint8_t val_image(image_t *image, size_t i, size_t j) {
+  return (image->buff[i * image->w + j]);
 }
 
-image_t *copier_image(image_t *src){
-  image_t *dst = creer_image();
-  dst->w = src->w;
-  dst->h = src->h;
-  if(src->path){
-    dst->path = strdup(src->path);
+image_t *creer_image(const char *path) {
+  image_t *img = NULL;
+  if (path) {
+    img = calloc(1, sizeof(image_t));
+    if (img) {
+      img->path = my_strdup(path);
+    } else {
+      perror("creer_image: Fail on allocating an image.");
+    }
+  } else {
+    perror("creer_image: Error fail on malloc or incorrect path.");
   }
-  if(dst->path == NULL){
-    perror("copier_image");
-  }
-  if(src->buff){
-    dst->buff = ùammoc(sizeof(char)*scr->w*src->h);
-  }
-  if(dst->buff){
-    memcopy(dst->buff, src->buff, sizeof(char) * src->w * src->h);
-  } else{
-    perror("copier-image")
-  }
-  return dst;
+  return (img);
 }
 
-void detruire_image(image_t *p){
-  if(p){
-    if(p->path){
+image_t *creer_image_wh(const char *path, uint32_t w, uint32_t h) {
+  image_t *image = creer_image(path);
+  image->w = w;
+  image->h = h;
+
+  return (image);
+}
+
+image_t *copier_image(image_t *src) {
+  image_t *dst = NULL;
+  if(src->path) {
+    dst = creer_image_wh(src->path, src->w, src->h);
+    if(src->buff) {
+      dst->buff = malloc(sizeof(char) * src->w * src->h);
+      if (dst->buff) {
+        memcpy(dst->buff,
+            src->buff,
+            sizeof(char) * src->w * src->h);
+      } else {
+        perror("copier-image: Error malloc failled to allocate the destination buffer.");
+      }
+    } else {
+      perror("copier_image: Error there is no source buffer");
+    }
+  } else {
+    perror("copier_image: Error path to image source is invalid.");
+  }
+  return (dst);
+}
+
+void detruire_image(image_t *p) {
+  if(p) {
+    if(p->path) {
       free(p->path);
     }
-    if(p->buff){
+    if(p->buff) {
       free(p->buff);
     }
     free(p);
   }
-}
-
-
-// Ici commence le test <-
-int main(){
-  image_t *test = creer_image();
-  image_t *test2 = copier_image();
-  printf("%d %d \n%d %d", test->w, test->h, test2->w, test2->h);
-  detruire_image(test2);
-  detruire_image(test);
 }
 
