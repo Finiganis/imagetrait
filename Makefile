@@ -22,7 +22,7 @@ ifeq ($(DEBUG),yes)
 			  -Wpointer-arith -Wnested-externs -Wstrict-overflow=5 \
 			  -Wno-missing-field-initializers -Wswitch-default -Wswitch-enum \
 			  -Wbad-function-cast -Wredundant-decls -fno-omit-frame-pointer
-	SRCS = image.c my_string.c pgm_image.c main_test.c
+	SRCS = image.c my_string.c pgm_image.c main_test.c noyau.c
 else
 	SRCS += guimpe.c guimpe_callback.c
 	CC = gcc
