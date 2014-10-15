@@ -70,3 +70,12 @@ noyau_t *charger_noyau(const char *nom_fichier) {
   }
   return core;
 }
+
+int core_sum(noyau_t *pn) {
+  int res = 0;
+
+  for (int x = 0; x < (pn->dim * pn->dim); x++) {
+    res += pn->coeffs[x];
+  }
+  return res;
+}

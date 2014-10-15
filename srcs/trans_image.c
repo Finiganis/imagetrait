@@ -50,7 +50,8 @@ image_t *rotation(image_t *src, int angle) {
 image_t *modifier_lumin(image_t *src, int pourcent) {
   image_t *dst = copier_image_sup(src);
   for (size_t i = 0; i < dst->h * dst->w; i++) {
-    //dst->buff[i] = (src->buff[i] > 255) ? 255 : (src->buff[i] * pourcent) / 100;
+    // Dirty Hack FIX THAT
+    // dst->buff[i] = (src->buff[i] > 255) ? 255 : (src->buff[i] * pourcent) / 100;
     dst->buff[i] = (src->buff[i] * pourcent) / 100;
   }
   return dst;
@@ -58,17 +59,62 @@ image_t *modifier_lumin(image_t *src, int pourcent) {
 
 image_t *bruiter_image(image_t *src, int pourcent) {
   image_t *dst = copier_image_sup(src);
-  (void)pourcent;
+  for (int x = 0; x < src->w; x++) {
+    for (int y = 0; y < src->h; y++) {
+      if ((rand() % 100) < pourcent){
+        dst->buff[x + src->w * y] = rand() % 256;
+      } else {
+        dst->buff[x + src->w * y] = src->buff[x + src->w * y];
+      }
+    }
+  }
   return dst;
 }
 
 image_t *filtrer_median(image_t *src) {
   image_t *dst = copier_image_sup(src);
+  for (int x = 0; x < src->w; x++) {
+    for (int y = 0; y < src->h; y++) {
+      filtrage_median(src, dst, x, y);
+    }
+  }
   return dst;
+}
+
+int sortie(int a, int max) {
+  if (a < 0) {
+    return 0;
+  } else if (a > max) {
+    return max;
+  } else {
+    return a;
+  }
+}
+
+void convolution(image_t *src, image_t *dst, noyau_t *pn, int x, int y) {
+  int convp = 0;
+  const int k = (pn->dim - 1) / 2;
+
+  x -= k;
+  y -= k;
+  for (int i = 0; i < pn->dim; i++) {
+    for (int j = 0; j < pn->dim; j++) {
+      convp += (pn->coeffs[i + pn->dim * j] *
+          val_pixel(src, sortie(x + j, src->w),
+            sortie(y + i, src->h)));
+    }
+  }
+  convp = convp / core_sum(pn);
+  dst->buff[x + k + src->w * (y + k)] = convp;
 }
 
 image_t *convoluer(image_t *src, noyau_t *pn) {
   image_t *dst = copier_image_sup(src);
-  (void) pn;
+
+  for (int x = 0; x < src->w; x++) {
+    for (int y = 0; y < src->h; y++) {
+      convolution(src, dst, pn, x, y);
+    }
+  }
   return dst;
 }

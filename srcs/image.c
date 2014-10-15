@@ -7,7 +7,7 @@
 #include "image.h"
 #include "my_string.h"
 
-uint8_t val_image(image_t *image, size_t i, size_t j) {
+uint8_t val_pixel(image_t *image, size_t i, size_t j) {
   return (image->buff[i * image->w + j]);
 }
 
