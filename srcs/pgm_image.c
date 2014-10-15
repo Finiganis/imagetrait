@@ -71,10 +71,9 @@ image_t *charger_image_pgm(const char *nom_fichier) {
     fgets(buffer, TMP_STR_SIZE, file);
     read_funct_t fun_read = read_strategy(buffer);
     if (fun_read) {
-      img = creer_image(nom_fichier);
+      img = creer_image_path(nom_fichier);
       while (fgets(buffer, TMP_STR_SIZE, file) &&
-          (sscanf(buffer, "%zu %zu",
-                  &img->w, &img->h) == 0)) {}
+          (sscanf(buffer, "%zu %zu", &img->w, &img->h) == 0)) {}
       while (fgets(buffer, TMP_STR_SIZE, file) &&
           (sscanf(buffer, "%hhu", &img->maxval) == 0)) {}
       img->buff = fun_read(file, img);
