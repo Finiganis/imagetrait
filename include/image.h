@@ -17,7 +17,7 @@ typedef struct image_ {
 image_t *creer_image(const char *path);
 image_t *copier_image(image_t *src);
 image_t *creer_image_wh(const char *path, uint32_t w, uint32_t h);
-uint8_t val_image(image_t *image, size_t i, size_t j);
+uint8_t val_pixel(image_t *image, size_t i, size_t j);
 void detruire_image(image_t *p);
 
 #endif /* IMAGE_H */
