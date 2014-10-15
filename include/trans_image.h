@@ -4,6 +4,9 @@
 #include "image.h"
 #include "noyau.h"
 
+void swap_pixel(uint8_t *src_pix, uint8_t *dst_pix);
+int sortie(int a, int max);
+
 image_t *negatif(image_t *src);
 image_t *modifier_lumin(image_t *src, int pourcent);
 image_t *bruiter_image(image_t *src, int pourcent);
