@@ -6,6 +6,7 @@
 #include "image.h"
 #include "pgm_image.h"
 #include "trans_image.h"
+#include "my_string.h"
 
 extern GtkWidget *pLabel_Nomf;
 extern GtkWidget *pLabel_Res;
@@ -14,20 +15,17 @@ extern GtkWidget *pDA;
 extern image_t *cur_image;
 
 // affichage de l image drawing_area
-void OnExpose(GtkWidget* widget, gpointer data)
-{
-  if (cur_image == NULL)
-  {
+void OnExpose(GtkWidget* widget, gpointer data) {
+  (void) data;
+  if (cur_image == NULL) {
     gtk_widget_set_size_request (widget, 0, 0);
-    gdk_draw_rectangle (	pDA->window,
+    gdk_draw_rectangle(pDA->window,
         pDA->style->white_gc,
         TRUE,
         0, 0,
         pDA->allocation.width,
         pDA->allocation.height);
-  }
-  else
-  {
+  } else {
     gtk_widget_set_size_request (widget, cur_image->w, cur_image->h);
     gdk_draw_gray_image (pDA->window,
         pDA->style->white_gc,
@@ -41,8 +39,9 @@ void OnExpose(GtkWidget* widget, gpointer data)
 
 // menu fichier
 
-void OnOuvrir(GtkWidget* widget, gpointer data)
-{
+void OnOuvrir(GtkWidget* widget, gpointer data) {
+  (void) widget;
+  (void) data;
   GtkWidget *dialog;
   GtkFileFilter *pgm_filter;
 
@@ -74,19 +73,22 @@ void OnOuvrir(GtkWidget* widget, gpointer data)
   gtk_widget_destroy (dialog);
 }
 
-void OnEnregistrer(GtkWidget* widget, gpointer data)
-{
+void OnEnregistrer(GtkWidget* widget, gpointer data) {
+  (void) widget;
+  (void) data;
   if (cur_image)
     sauver_image_pgm(cur_image->path, cur_image);
 }
 
-void OnEnregSous(GtkWidget* widget, gpointer data)
-{
+void OnEnregSous(GtkWidget* widget, gpointer data) {
+  (void) widget;
+  (void) data;
   GtkWidget *dialog;
   GtkFileFilter *pgm_filter;
 
-  if (cur_image == NULL)
+  if (cur_image == NULL) {
     return;
+  }
   pgm_filter = gtk_file_filter_new ();
   gtk_file_filter_set_name( pgm_filter, "*.pgm");
   gtk_file_filter_add_pattern (pgm_filter, "*.pgm");
@@ -101,25 +103,26 @@ void OnEnregSous(GtkWidget* widget, gpointer data)
   gtk_file_chooser_set_current_name (GTK_FILE_CHOOSER (dialog), "SansNom");
   gtk_file_chooser_add_filter(GTK_FILE_CHOOSER (dialog), pgm_filter);
 
-  if (gtk_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_ACCEPT)
-  {
+  if (gtk_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_ACCEPT) {
     char *nom_fichier;
     nom_fichier = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (dialog));
     sauver_image_pgm(nom_fichier, cur_image);
-    cur_image->path= strdup(nom_fichier);
+    cur_image->path= my_strdup(nom_fichier);
     g_free (nom_fichier);
   }
   gtk_widget_destroy (dialog);
 }
 
-void OnFermer(GtkWidget* widget, gpointer data)
-{
+void OnFermer(GtkWidget* widget, gpointer data) {
+  (void) widget;
+  (void) data;
   pile_free_images();
 }
 
 
-void OnQuitter(GtkWidget* widget, gpointer data)
-{
+void OnQuitter(GtkWidget* widget, gpointer data) {
+  (void) widget;
+  (void) data;
   GtkWidget *pQuestion;
 
   pQuestion = gtk_message_dialog_new(GTK_WINDOW(data),
@@ -129,8 +132,7 @@ void OnQuitter(GtkWidget* widget, gpointer data)
       "Voulez vous vraiment\n"
       "quitter le programme?");
 
-  switch(gtk_dialog_run(GTK_DIALOG(pQuestion)))
-  {
+  switch(gtk_dialog_run(GTK_DIALOG(pQuestion))) {
     case GTK_RESPONSE_YES:
       gtk_main_quit();
       pile_free_images();
@@ -144,26 +146,30 @@ void OnQuitter(GtkWidget* widget, gpointer data)
 
 // menu Edition
 
-void OnAnnuler(GtkWidget* widget, gpointer data)
-{
+void OnAnnuler(GtkWidget* widget, gpointer data) {
+  (void) widget;
+  (void) data;
   pile_undo();
 }
 
-void OnRetablir(GtkWidget* widget, gpointer data)
-{
+void OnRetablir(GtkWidget* widget, gpointer data) {
+  (void) widget;
+  (void) data;
   pile_redo();
 }
 
 
 // menu Image
 
-void OnNegatif(GtkWidget* widget, gpointer data)
-{
+void OnNegatif(GtkWidget* widget, gpointer data) {
+  (void) widget;
+  (void) data;
   pile_new_image(negatif(cur_image));
 }
 
-void OnRotation(GtkWidget* widget, gpointer data)
-{
+void OnRotation(GtkWidget* widget, gpointer data) {
+  (void) data;
+  (void) widget;
   GtkWidget* pBoite;
   GtkWidget *pRadio90;
   GtkWidget *pRadio180;
@@ -193,8 +199,7 @@ void OnRotation(GtkWidget* widget, gpointer data)
 
 
   /* On lance la boite de dialogue et on recupere la reponse */
-  if (gtk_dialog_run(GTK_DIALOG(pBoite)) == GTK_RESPONSE_OK)
-  {
+  if (gtk_dialog_run(GTK_DIALOG(pBoite)) == GTK_RESPONSE_OK) {
     GSList *pList;
     int angle = 270;
 
@@ -202,11 +207,9 @@ void OnRotation(GtkWidget* widget, gpointer data)
     pList = gtk_radio_button_get_group(GTK_RADIO_BUTTON(pRadio90));
 
     /* Parcours de la liste */
-    while(pList)
-    {
+    while(pList) {
       /* Le bouton est il selectionne */
-      if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(pList->data)))
-      {
+      if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(pList->data))) {
         // rotation
         pile_new_image(rotation(cur_image, angle));
       }
@@ -220,8 +223,7 @@ void OnRotation(GtkWidget* widget, gpointer data)
   gtk_widget_destroy(pBoite);
 }
 
-void OnScrollbarChange(GtkWidget *pWidget, gpointer data)
-{
+void OnScrollbarChange(GtkWidget *pWidget, gpointer data) {
   gchar* sLabel;
   gint iValue;
 
@@ -235,8 +237,9 @@ void OnScrollbarChange(GtkWidget *pWidget, gpointer data)
   g_free(sLabel);
 }
 
-void OnLuminosite(GtkWidget* widget, gpointer data)
-{
+void OnLuminosite(GtkWidget* widget, gpointer data) {
+  (void) widget;
+  (void) data;
   GtkWidget* pBoite;
   GtkWidget *pLabel;
   GtkWidget *pScrollbar;
@@ -272,8 +275,9 @@ void OnLuminosite(GtkWidget* widget, gpointer data)
   gtk_widget_destroy(pBoite);
 }
 
-void OnBruiter(GtkWidget* widget, gpointer data)
-{
+void OnBruiter(GtkWidget* widget, gpointer data) {
+  (void) widget;
+  (void) data;
   GtkWidget* pBoite;
   GtkWidget *pScale;
 
@@ -291,15 +295,17 @@ void OnBruiter(GtkWidget* widget, gpointer data)
   gtk_box_pack_start(GTK_BOX(GTK_DIALOG(pBoite)->vbox), pScale, FALSE, FALSE, 0);
   gtk_widget_show_all(GTK_DIALOG(pBoite)->vbox);
 
-  if (gtk_dialog_run(GTK_DIALOG(pBoite)) == GTK_RESPONSE_OK)
+  if (gtk_dialog_run(GTK_DIALOG(pBoite)) == GTK_RESPONSE_OK) {
     pile_new_image(bruiter_image(cur_image, gtk_range_get_value(GTK_RANGE(pScale))));
+  }
 
   /* Destruction de la boite de dialogue */
   gtk_widget_destroy(pBoite);
 }
 
-void OnFiltrer(GtkWidget* widget, gpointer data)
-{
+void OnFiltrer(GtkWidget* widget, gpointer data) {
+  (void) widget;
+  (void) data;
   GtkWidget *dialog;
   GtkFileFilter *pgm_filter;
 
@@ -316,8 +322,7 @@ void OnFiltrer(GtkWidget* widget, gpointer data)
 
   gtk_file_chooser_add_filter(GTK_FILE_CHOOSER (dialog), pgm_filter);
 
-  if (gtk_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_ACCEPT)
-  {
+  if (gtk_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_ACCEPT) {
     char *nom_fichier;
     noyau_t *noy;
 
@@ -330,16 +335,17 @@ void OnFiltrer(GtkWidget* widget, gpointer data)
   gtk_widget_destroy (dialog);
 }
 
-void OnMedian(GtkWidget* widget, gpointer data)
-{
+void OnMedian(GtkWidget* widget, gpointer data) {
+  (void) widget;
+  (void) data;
   pile_new_image(filtrer_median(cur_image));
 }
 
 
 // menu A propos
 
-void OnAbout(GtkWidget* widget, gpointer data)
-{
+void OnAbout(GtkWidget* widget, gpointer data) {
+  (void) widget;
   GtkWidget *pAbout;
 
   pAbout = gtk_message_dialog_new (GTK_WINDOW(data),
