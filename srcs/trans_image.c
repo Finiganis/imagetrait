@@ -73,17 +73,15 @@ image_t *bruiter_image(image_t *src, int pourcent) {
   return dst;
 }
 
-/*
 image_t *filtrer_median(image_t *src) {
   image_t *dst = copier_image_sup(src);
   for (size_t x = 0; x < src->w; x++) {
     for (size_t y = 0; y < src->h; y++) {
-      filtrage_median(src, dst, x, y);
+      //filtrage_median(src, dst, x, y);
     }
   }
   return dst;
 }
-*/
 
 int sortie(int a, int max) {
   if (a < 0) {

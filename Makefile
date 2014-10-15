@@ -10,7 +10,7 @@ CFLAGS = -Wall -Wextra -Werror -pedantic -pedantic-errors -std=c99 \
 SRCDIR = ./srcs
 OBJDIR = ./objs
 INCDIR = ./include
-SRCS = image.c noyau.c trans_image.c pgm_image.c my_string.c
+SRCS = image.c noyau.c trans_image.c pgm_image.c my_string.c pile_image_basic.c
 
 ifeq ($(DEBUG),yes)
 	CC = gcc
