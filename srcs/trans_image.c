@@ -63,8 +63,9 @@ image_t *bruiter_image(image_t *src, int pourcent) {
   image_t *dst = copier_image_sup(src);
   for (size_t x = 0; x < src->w; x++) {
     for (size_t y = 0; y < src->h; y++) {
-      if ((rand() % 100) < pourcent){
-        dst->buff[x + src->w * y] = rand() % 256;
+      const int random_number = rand();
+      if ((random_number % 100) < pourcent){
+        dst->buff[x + src->w * y] = random_number % 256;
       } else {
         dst->buff[x + src->w * y] = src->buff[x + src->w * y];
       }
