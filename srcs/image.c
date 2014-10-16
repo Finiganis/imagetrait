@@ -26,8 +26,7 @@ image_t *creer_image(void) {
   image_t *img = NULL;
 
   img = malloc(sizeof(image_t));
-  if (!img) {
-  } else {
+  if (img == NULL) {
     perror("creer_image: Fail on allocating an image.");
   }
   return (img);
@@ -36,9 +35,11 @@ image_t *creer_image(void) {
 image_t *creer_image_path(const char *path) {
   image_t *img = NULL;
   if (path) {
-    creer_image();
+    img = creer_image();
     if (img) {
       img->path = my_strdup(path);
+    } else {
+      perror("creer_image_path: ");
     }
   } else {
     perror("creer_image: Error fail on malloc or incorrect path.");

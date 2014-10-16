@@ -91,6 +91,7 @@ image_t *charger_image_pgm(const char *nom_fichier) {
 int sauver_image_pgm(const char *nom_fichier, image_t *img) {
   FILE* file = fopen(nom_fichier, "w");
 
+  if (img && img->buff) {
   if (file) {
     fprintf(file, "%c%d\n%zu %zu\n%d\n",
         'P', ASCII, img->w, img->h, img->maxval);
@@ -103,6 +104,10 @@ int sauver_image_pgm(const char *nom_fichier, image_t *img) {
     fclose(file);
   } else {
     perror("sauver_image_pgm: Error impossible to create file.");
+    return 0;
+  }
+  } else {
+    fprintf(stderr, "sauver_image_pgm: invalid image buffer.\n");
     return 0;
   }
   return 1;
