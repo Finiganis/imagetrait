@@ -92,20 +92,20 @@ int sauver_image_pgm(const char *nom_fichier, image_t *img) {
   FILE* file = fopen(nom_fichier, "w");
 
   if (img && img->buff) {
-  if (file) {
-    fprintf(file, "%c%d\n%zu %zu\n%d\n",
-        'P', ASCII, img->w, img->h, img->maxval);
-    for (size_t y = 0, x = 0; y < img->h; y++, x = 0) {
-      for (; x < img->w; x++) {
-        const size_t cur = x + y * img->w;
-        fprintf(file, "%hhu\n", img->buff[cur]);
+    if (file) {
+      fprintf(file, "%c%d\n%zu %zu\n%d\n",
+          'P', ASCII, img->w, img->h, img->maxval);
+      for (size_t y = 0, x = 0; y < img->h; y++, x = 0) {
+        for (; x < img->w; x++) {
+          const size_t cur = x + y * img->w;
+          fprintf(file, "%hhu\n", img->buff[cur]);
+        }
       }
+      fclose(file);
+    } else {
+      perror("sauver_image_pgm: Error impossible to create file.");
+      return 0;
     }
-    fclose(file);
-  } else {
-    perror("sauver_image_pgm: Error impossible to create file.");
-    return 0;
-  }
   } else {
     fprintf(stderr, "sauver_image_pgm: invalid image buffer.\n");
     return 0;

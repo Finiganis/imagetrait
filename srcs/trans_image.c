@@ -15,10 +15,15 @@ void swap_pixel(uint8_t *src_pix, uint8_t *dst_pix) {
 
 image_t *negatif(image_t *src) {
   image_t *dst = copier_image_sup(src);
-  for (size_t i = 0; i < dst->h * dst->w; i++) {
+  for (size_t i = 0; i < dst->h * dst->w; i += 1) {
     dst->buff[i] = ~dst->buff[i];
   }
   return dst;
+}
+
+static
+size_t index_(size_t x, size_t y, image_t *img) {
+  return (x + img->w * y);
 }
 
 static
@@ -26,18 +31,11 @@ void rotation90_aux(image_t *src, image_t *dst, int angle) {
   if (angle % 90 == 0 && angle != 0) {
     dst->h = src->w;
     dst->w = src->h;
-    fprintf(stderr, "Max cursor dst: %zu\n", dst->w * dst->h);
-    for (size_t y = 0; y < dst->h; y++) {
-      for (size_t x = 0; x < dst->w; x++) {
-        const size_t dst_cur = x + dst->w * y;
-        const size_t src_cur = (src->h - y) + (src->w * x);
+    for (size_t y = 0, x = 0; y < src->h; y++, x = 0) {
+      for (; x < src->w; x++) {
+        const size_t src_cur = index_(x, y, src);
+        const size_t dst_cur = index_(src->h - y, x, dst) - 1;
         dst->buff[dst_cur] = src->buff[src_cur];
-        fprintf(stderr, "dst->buff[%zu]: %hhu\n"
-            "src->buff[%zu]: %hhu |",
-            dst_cur,
-            dst->buff[dst_cur],
-            src_cur,
-            src->buff[src_cur]);
       }
     }
     rotation90_aux(src, dst, angle - 90);
@@ -48,8 +46,11 @@ image_t *rotation(image_t *src, int angle) {
   image_t *dst = NULL;
   if (angle % 90 == 0) {
     dst = copier_image_sup(src);
-    rotation90_aux(src, dst, angle);
-    return dst;
+    if (dst) {
+      rotation90_aux(src, dst, angle);
+    } else {
+      fprintf(stderr, "rotation: image is NULL\n");
+    }
   }
   return dst;
 }
@@ -100,6 +101,15 @@ int sortie(int a, int max) {
 }
 
 static
+int divide_(int32_t a, int32_t b) {
+  if (b == 0) {
+    return 0;
+  } else {
+    return (a / b);
+  }
+}
+
+static
 void convolution(image_t *src, image_t *dst, noyau_t *pn, int x, int y) {
   int convp = 0;
   const int k = (pn->dim - 1) / 2;
@@ -113,7 +123,7 @@ void convolution(image_t *src, image_t *dst, noyau_t *pn, int x, int y) {
             sortie(y + i, src->h)));
     }
   }
-  convp = convp / core_sum(pn);
+  convp = divide_(convp, core_sum(pn));
   dst->buff[x + k + src->w * (y + k)] = convp;
 }
 
