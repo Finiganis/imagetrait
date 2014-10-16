@@ -15,9 +15,13 @@ image_t *copier_image_sup(image_t *src) {
   image_t *dst = NULL;
   if (src) {
     dst = creer_image_wh(src->path, src->w, src->h);
-    dst->buff = malloc(sizeof(char) * src->w * src->h);
+    dst->buff = malloc(sizeof(uint8_t) * dst->w * dst->h);
+    dst->maxval = src->maxval;
+    if (!dst->buff) {
+      perror("copier_image: ");
+    }
   } else {
-    perror("copier_image: ");
+    fprintf(stderr, "copier_image_sup: Invalid source image is NULL.\n");
   }
   return dst;
 }

@@ -16,34 +16,39 @@ void swap_pixel(uint8_t *src_pix, uint8_t *dst_pix) {
 image_t *negatif(image_t *src) {
   image_t *dst = copier_image_sup(src);
   for (size_t i = 0; i < dst->h * dst->w; i++) {
-    dst->buff[i] -= 255;
+    dst->buff[i] = ~dst->buff[i];
   }
   return dst;
 }
 
 static
 void rotation90_aux(image_t *src, image_t *dst, int angle) {
-  for (size_t y = 0; y < src->h; y++) {
-    for (size_t x = 0; x < src->w; x++) {
-      dst->buff[x + src->w * y] = (src->buff[(src->h - y) + (src->w * x)]);
+  if (angle % 90 == 0 && angle != 0) {
+    dst->h = src->w;
+    dst->w = src->h;
+    fprintf(stderr, "Max cursor dst: %zu\n", dst->w * dst->h);
+    for (size_t y = 0; y < dst->h; y++) {
+      for (size_t x = 0; x < dst->w; x++) {
+        const size_t dst_cur = x + dst->w * y;
+        const size_t src_cur = (src->h - y) + (src->w * x);
+        dst->buff[dst_cur] = src->buff[src_cur];
+        fprintf(stderr, "dst->buff[%zu]: %hhu\n"
+            "src->buff[%zu]: %hhu |",
+            dst_cur,
+            dst->buff[dst_cur],
+            src_cur,
+            src->buff[src_cur]);
+      }
     }
+    rotation90_aux(src, dst, angle - 90);
   }
-  rotation(dst, angle - 90);
-  src->h = dst->w;
-  src->w = dst->h;
-}
-
-static
-image_t *rotation90(image_t *src, int angle) {
-  image_t *dst = copier_image_sup(src);
-  rotation90_aux(src, dst, angle);
-  return (dst);
 }
 
 image_t *rotation(image_t *src, int angle) {
   image_t *dst = NULL;
   if (angle % 90 == 0) {
-    dst = rotation90(src, angle);
+    dst = copier_image_sup(src);
+    rotation90_aux(src, dst, angle);
     return dst;
   }
   return dst;

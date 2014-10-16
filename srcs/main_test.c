@@ -5,6 +5,7 @@
 #include "my_string.h"
 #include "image.h"
 #include "noyau.h"
+#include "trans_image.h"
 
 int main(int argc, char *argv[]) {
   if (argc == 3) {
@@ -20,8 +21,10 @@ int main(int argc, char *argv[]) {
     }
     putchar('\n');
     detruire_noyau(core);
-    sauver_image_pgm("replique.pgm", img);
+    image_t *new_img = rotation(img, 90);
+    sauver_image_pgm("replique2.pgm", new_img);
     detruire_image(img);
+    detruire_image(new_img);
     free(path);
     free(filename_core);
   }
