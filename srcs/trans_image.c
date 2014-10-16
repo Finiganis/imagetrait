@@ -16,7 +16,7 @@ void swap_pixel(uint8_t *src_pix, uint8_t *dst_pix) {
 image_t *negatif(image_t *src) {
   image_t *dst = copier_image_sup(src);
   for (size_t i = 0; i < dst->h * dst->w; i += 1) {
-    dst->buff[i] = ~dst->buff[i];
+    dst->buff[i] = ~src->buff[i];
   }
   return dst;
 }
