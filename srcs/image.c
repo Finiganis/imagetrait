@@ -7,8 +7,10 @@
 #include "image.h"
 #include "my_string.h"
 
-uint8_t val_pixel(image_t *image, size_t i, size_t j) {
-  return (image->buff[i * image->w + j]);
+inline
+uint8_t val_pixel(const image_t *image, const size_t i, const size_t j) {
+  if (i * image->w + j > image->w * image->h) {fprintf(stderr, "INVALID READ: i %zu j %zu, image->w %zu\n", i, j, image->w); exit(1);}
+  return (image->buff[i + image->w * j]);
 }
 
 image_t *copier_image_sup(image_t *src) {
