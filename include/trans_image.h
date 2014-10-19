@@ -4,6 +4,8 @@
 #include "image.h"
 #include "noyau.h"
 
+typedef void(func_rot_t)(image_t *src, image_t *dst);
+
 image_t *negatif(image_t *src);
 image_t *modifier_lumin(image_t *src, int pourcent);
 image_t *bruiter_image(image_t *src, int pourcent);

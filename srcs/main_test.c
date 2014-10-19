@@ -14,9 +14,9 @@ int main(int argc, char *argv[]) {
     image_t *img = charger_image_pgm(path);
     if (!img) { fprintf(stderr, "main: Invalid image abort\n"); return 1;}
     image_t *new_img = rotation(img, 90);
-    image_t *tmp = rotation(new_img, 90);
+    image_t *tmp = rotation(new_img, 180);
     detruire_image(new_img);
-    new_img = rotation(tmp, 90);
+    new_img = rotation(tmp, 270);
     detruire_image(tmp);
     tmp = rotation(new_img, 90);
     detruire_image(new_img);
@@ -43,10 +43,19 @@ int main(int argc, char *argv[]) {
       noyau_t *core = charger_noyau(noyaux[x]);
       fprintf(stderr, "%zu: core.path: %s"
           " | core.dim: %d\n",x, noyaux[x], core->dim);
+      for (size_t i = 0; i < core->dim; i += 1) {
+        for (size_t j = 0; j < core->dim; j += 1) {
+          fprintf(stderr, "%d ", core->coeffs[j + core->dim * i]);
+        }
+        putchar('\n');
+      }
       image_t *img2 = convoluer(new_img, core);
       detruire_image(img2);
       detruire_noyau(core);
     }
+
+    detruire_image(img);
+    img = filtrer_median(new_img);
     detruire_image(img);
     detruire_image(new_img);
     free(path);

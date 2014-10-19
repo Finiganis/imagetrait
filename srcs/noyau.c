@@ -40,12 +40,8 @@ void detruire_noyau(noyau_t *pn) {
 
 static
 void read_core(FILE *file, noyau_t *pn) {
-  for (size_t y = 0, x = 0; y < pn->dim; y++, x = 0) {
-    for (; x < pn->dim; x++) {
-      const size_t cur = x + y * pn->dim;
-
-      fscanf(file, "%d", &pn->coeffs[cur]);
-    }
+  for (size_t x = 0; x < pn->dim * pn->dim; x++) {
+      fscanf(file, "%d", &pn->coeffs[x]);
   }
 }
 

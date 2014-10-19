@@ -13,7 +13,7 @@ INCDIR = ./include
 SRCS = image.c noyau.c trans_image.c pgm_image.c my_string.c
 ifeq ($(DEBUG),yes)
 	CC = gcc
-	CFLAGS += -ggdb3 -fstack-protector-all -Wshadow -Wunreachable-code \
+	CFLAGS += -ggdb -g3 -fstack-protector-all -Wshadow -Wunreachable-code \
 			  -Wstack-protector -pedantic-errors -O0 -W -Wundef -fno-common \
 			  -Wfatal-errors -Wstrict-prototypes -Wmissing-prototypes \
 			  -Wwrite-strings -Wunknown-pragmas \
@@ -24,7 +24,6 @@ ifeq ($(DEBUG),yes)
 	SRCS = image.c my_string.c pgm_image.c main_test.c noyau.c trans_image.c
 else
 	SRCS += guimpe.c guimpe_callback.c pile_image_basic.c
-
 	CC = gcc
 	CFLAGS += -O3 `pkg-config --cflags gtk+-2.0`
 	LDFLAGS = `pkg-config --libs gtk+-2.0`
