@@ -8,37 +8,28 @@ GtkWidget *pLabel_Nomf;
 GtkWidget *pLabel_Res;
 GtkWidget *pDA;
 
-int main(int argc, char **argv)
-{
-  GtkWidget *pWindow;
-  GtkWidget *pVBox;
-  GtkWidget *pHBox;
-  GtkWidget *pMenuBar;
-  GtkWidget *pMenu;
-  GtkWidget *pMenuItem;
-  GtkWidget *pSeparator;
-
+int main(int argc, char **argv) {
   gtk_init(&argc, &argv);
 
   /* Creation de la fenetre */
-  pWindow = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+  GtkWidget *pWindow = gtk_window_new(GTK_WINDOW_TOPLEVEL);
   gtk_window_set_title(GTK_WINDOW(pWindow), "guimpe");
   gtk_window_set_default_size(GTK_WINDOW(pWindow), -1, -1);
   g_signal_connect(G_OBJECT(pWindow), "destroy", G_CALLBACK(gtk_main_quit), NULL);
 
   /* Creation de la GtkVBox */
-  pVBox = gtk_vbox_new(FALSE, 0);
+  GtkWidget *pVBox = gtk_vbox_new(FALSE, 0);
   gtk_container_add(GTK_CONTAINER(pWindow), pVBox);
 
   /**** Creation du menu ****/
 
   /* ETAPE 1 */
-  pMenuBar = gtk_menu_bar_new();
+  GtkWidget *pMenuBar = gtk_menu_bar_new();
   /** Premier sous-menu **/
   /* ETAPE 2 */
-  pMenu = gtk_menu_new();
+  GtkWidget *pMenu = gtk_menu_new();
   /* ETAPE 3 */
-  pMenuItem = gtk_menu_item_new_with_mnemonic("_Ouvrir");
+  GtkWidget *pMenuItem = gtk_menu_item_new_with_mnemonic("_Ouvrir");
   g_signal_connect(G_OBJECT(pMenuItem), "activate", G_CALLBACK(OnOuvrir), (GtkWidget*) pWindow);
   gtk_menu_shell_append(GTK_MENU_SHELL(pMenu), pMenuItem);
 
@@ -54,7 +45,7 @@ int main(int argc, char **argv)
   g_signal_connect(G_OBJECT(pMenuItem), "activate", G_CALLBACK(OnFermer), (GtkWidget*) pWindow);
   gtk_menu_shell_append(GTK_MENU_SHELL(pMenu), pMenuItem);
 
-  pSeparator = gtk_separator_menu_item_new();
+  GtkWidget *pSeparator = gtk_separator_menu_item_new();
   gtk_menu_shell_append(GTK_MENU_SHELL(pMenu), pSeparator);
 
   pMenuItem = gtk_menu_item_new_with_mnemonic("_Quitter");
@@ -146,11 +137,10 @@ int main(int argc, char **argv)
   gtk_box_pack_start(GTK_BOX(pVBox), pDA, FALSE, FALSE, 0);
 
   // Ajout labels du bas
-  pHBox = gtk_hbox_new(FALSE, 0);
+  GtkWidget *pHBox = gtk_hbox_new(FALSE, 0);
 
   pLabel_Nomf = gtk_label_new("Pas d image chargee");
   gtk_box_pack_start(GTK_BOX(pHBox), pLabel_Nomf, TRUE, FALSE, 0);
-
 
   pSeparator = gtk_vseparator_new();
   gtk_box_pack_start(GTK_BOX(pHBox), pSeparator, FALSE, FALSE, 0);
@@ -162,9 +152,7 @@ int main(int argc, char **argv)
 
   // effacer historique
   pile_free_images();
-
   gtk_widget_show_all(pWindow);
-
   gtk_main();
 
   return EXIT_SUCCESS;

@@ -1,110 +1,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
 #include "image.h"
 #include "noyau.h"
+#include "trans_image.h"
 
-
-
-image_t *copier_image2(image_t *src) {
-  image_t *dst = creer_image();
-  dst->w = src->w;
-  dst->h = src->h;
-  if(src->path) {
-    dst->path = my_strdup(src->path);
-  }
-  if(dst->path == NULL) {
-    perror("copier_image2");
-  }
-  dst->buffer = malloc(sizeof(char) * src->w * src->h);
-}
-
-image_t *negatif(image_t *src) {
-  image_t *dst = copier_image2(src);
-  for (int i = 0; i < dst->h * dst->w; i++) {
-    dst->buff[i] = 255 - src->buff[i];
-  }
-  return dst;
-}
-
+inline
 static
-void rotation90_aux(image_t *src, image_t *dst,int angle) {
-  if (angle == 0) {
-    return dst;
-  }
-  for (int y = 0; y < src->h; y++) {
-    for (int x = 0; x < src->w; x++) {
-      dst->buff[x + src->w * y] = src->buff[(src->h - y) + (src->w * x)];
-    }
-  }
-  rotation(dst, angle - 90);
-  detruire_image(dst);
-}
-
-image_t *rotation90(image_t *src, int angle) {
-  image_t *dst = copier_image2(src);
-  rotation90_aux(src, dst, angle);
-  return (dst);
-}
-
-void swap_pixel(uint8_t *src_pix, uint8_t *dst_pix) {
-  const uint8_t tmp_pix = *src_pix;
-  *src_pix = dst_pix;
-  *dst_pix = tmp_pix;
-}
-
-image_t *rotation(image_t *src, int angle) {
-  if (angle % 90 != 0) {
-    image_t *dst = copier_image2(src);
-    return dst;
-  }
-  image_t *dst = NULL;
-  dst = rotation90(src, angle);
-  return dst;
-}
-
-image_t *modifier_lumin(image_t *src, int pourcent) {
-  image_t *dst = copier_image2(src);
-  for (int i = 0; i < dst->h * dst->w; i++) {
-    dst->buff[i] = (src->buff[i] > 255) ? 255 : (src->buff[i] * pourcent) / 100;
-  }
-  return dst;
-}
-
-image_t *bruiter_image(image_t *src, int pourcent) {
-  image_t *dst = copier_image2(src);
-  for (int x = 0; x < src->w; x++) {
-    for (int y = 0; y < src->h; y++) {
-      if ((rand() % 100) < pourcent){
-        dst->buff[x + src->w * y] = rand() % 256;
-      } else {
-        dst->buff[x + src->w * y] = src->buff[x + src->w * y];
-      }
-    }
-  }
-  return dst;
-}
-
-image_t *filtrer_median(image_t *src) {
-  image_t *dst = copier_image2(src);
-  for (int x = 0; x < src->w; x++) {
-    for (int y = 0; y < src->h; y++) {
-      filtrage_median(src, dest, x, y);
-    }
-  }
-  return dst;
-}
-
-int somme(noyau *pn) {
-  int res = 0;
-
-  for (int x = 0, x < pn->dim * dim, i++) {
-    res += pn->coeff[x];
-  }
-  return res;
-}
-
-int sortie(int a, int max) {
+int sortie(int32_t a, int32_t max) {
+  max = max - 1;
   if (a < 0) {
     return 0;
   } else if (a > max) {
@@ -114,28 +19,196 @@ int sortie(int a, int max) {
   }
 }
 
-void convolution(image_t *src, image_t *dst, noyau *pn, int x, int y) {
+inline
+static
+int divide_(int32_t a, int32_t b) {
+  if (b == 0) {
+    return a;
+  } else {
+    return (a / b);
+  }
+}
+
+image_t *negatif(image_t *src) {
+  image_t *dst = copier_image_sup(src);
+  for (size_t i = 0; i < dst->h * dst->w; i += 1) {
+    dst->buff[i] = ~src->buff[i];
+  }
+  return dst;
+}
+
+inline
+static
+size_t index_(const size_t x, const size_t y, const image_t *img) {
+  return (x + img->w * y);
+}
+
+static
+void rotation90_aux(image_t *src, image_t *dst) {
+  dst->h = src->w;
+  dst->w = src->h;
+  for (size_t y = 0; y < src->h; y += 1) {
+    for (size_t x = 0; x < src->w; x += 1) {
+      const size_t src_cur = index_(x, y, src),
+                   dst_cur = index_(src->h - y, x, dst) - 1;
+      dst->buff[dst_cur] = src->buff[src_cur];
+    }
+  }
+}
+
+static
+void rotation180_aux(image_t *src, image_t *dst) {
+  dst->w = src->w;
+  dst->h = src->h;
+  for (size_t src_cur = src->w * src->h, dst_cur = 0;
+      (src_cur > 0) && (dst_cur < dst->w * dst->h);
+      src_cur -= 1, dst_cur += 1) {
+    dst->buff[dst_cur] = src->buff[src_cur];
+  }
+}
+
+static
+void rotation270_aux(image_t *src, image_t *dst) {
+  dst->h = src->w;
+  dst->w = src->h;
+  for (size_t y = 0; y < src->h; y += 1) {
+    for (size_t x = 0; x < src->w; x += 1) {
+      const size_t src_cur = index_(x, y, src),
+                   dst_cur = index_(y, src->w - x, dst);
+      dst->buff[dst_cur] = src->buff[src_cur];
+    }
+  }
+}
+
+static
+func_rot_t *strategy_rotation(int angle) {
+  if (angle == 90) {
+    return rotation90_aux;
+  } else if (angle == 180) {
+    return rotation180_aux;
+  } else if (angle == 270) {
+    return rotation270_aux;
+  } else {
+    return NULL;
+  }
+}
+
+image_t *rotation(image_t *src, int angle) {
+  image_t *dst = NULL;
+  func_rot_t *fun = strategy_rotation(angle);
+  if (fun) {
+    dst = copier_image_sup(src);
+    if (dst) {
+      fun(src, dst);
+    } else {
+      fprintf(stderr, "rotation: image is NULL\n");
+    }
+  } else {
+    fprintf(stderr, "rotation: Invalid angle %d.\n", angle);
+  }
+  return dst;
+}
+
+static
+uint8_t fix_pixel_lumin(const int new_pixel) {
+  if (new_pixel >= 255) {
+    return (255);
+  } else if (new_pixel <= 0) {
+    return (0);
+  } else {
+    return ((uint8_t) new_pixel);
+  }
+}
+
+image_t *modifier_lumin(image_t *src, int pourcent) {
+  image_t *dst = copier_image_sup(src);
+  for (size_t i = 0; i < dst->h * dst->w; i += 1) {
+    const int new_pixel = (src->buff[i] * pourcent) / 100;
+    dst->buff[i] = fix_pixel_lumin(new_pixel);
+  }
+  return dst;
+}
+
+image_t *bruiter_image(image_t *src, int pourcent) {
+  image_t *dst = copier_image_sup(src);
+  for (size_t i = 0; i < src->w * src->h; i++) {
+    if ((rand() % 100) < pourcent) {
+      dst->buff[i] = rand() % 255;
+    } else {
+      dst->buff[i] = src->buff[i];
+    }
+  }
+  return dst;
+}
+
+static
+void remplissage(uint8_t *medians, uint8_t pixel, size_t count) {
+  for (; (count > 0) && (pixel < medians[count - 1]); count -= 1) {
+    medians[count] = medians[count - 1];
+  }
+  medians[count] = pixel;
+}
+
+static
+void filtrage_median(uint8_t *medians, image_t *dst,
+    const image_t *src,
+    const int32_t x,
+    const int32_t y) {
+  size_t count = 0;
+
+  for (int32_t mod_y = -2; mod_y < 3; mod_y += 1) {
+    for (int32_t mod_x = -2; mod_x < 3; mod_x += 1) {
+      if ((mod_y != -2 && mod_y != 2) ||
+          (mod_x != -2  && mod_x != 2)) {
+        const size_t tmp_x = sortie(x + mod_x, src->w),
+                     tmp_y = sortie(y + mod_y, src->h),
+                     cursor = tmp_x + src->w * tmp_y;
+
+        remplissage(medians, src->buff[cursor], count);
+        count += 1;
+      }
+    }
+  }
+  dst->buff[x + dst->w * y] = medians[10];
+}
+
+image_t *filtrer_median(image_t *src) {
+  image_t *dst = copier_image_sup(src);
+  uint8_t medians[21] = { 0 };
+  for (size_t x = 0; x < src->w; x++) {
+    for (size_t y = 0; y < src->h; y++) {
+      filtrage_median(medians, dst, src, x, y);
+    }
+  }
+  return dst;
+}
+
+static
+void convolution(image_t *src, image_t *dst, noyau_t *pn, size_t x, size_t y) {
   int convp = 0;
   const int k = (pn->dim - 1) / 2;
 
   x -= k;
   y -= k;
-  for (int i = 0; i < pn->dim, i++) {
-    for (int j = 0; j < pn->dim, j++) {
-      convp += pn->coeffs[i + pn->dim * j] *
-                val_pixel(src, sortie(x + j, src->w) ,
-                          sortie(y + i, src->h));
+  for (size_t i = 0; i < pn->dim; i++) {
+    for (size_t j = 0; j < pn->dim; j++) {
+      const size_t src_x = sortie(x + j, src->w),
+                   src_y = sortie(y + i, src->h),
+                   cur_core = i + pn->dim * j;
+      const uint8_t pixel = val_pixel(src, src_x, src_y);
+      convp += pn->coeffs[cur_core] * pixel;
     }
   }
-  convp = convp / (somme(pn));
-  dst->buff[(x + k + src->w * (y + k] = convp;
+  convp = divide_(convp, core_sum(pn));
+  const size_t cursor = x + k + src->w * (y + k);
+  dst->buff[cursor] = convp;
 }
 
 image_t *convoluer(image_t *src, noyau_t *pn) {
-  image_t *dst = copier_image2(src);
+  image_t *dst = copier_image_sup(src);
 
-  for (int x = 0; x < src->w; x++) {
-    for (int y = 0; y < src->h; y++) {
+  for (size_t y = 0; y < src->h; y += 1) {
+    for (size_t x = 0; x < src->w; x += 1) {
       convolution(src, dst, pn, x, y);
     }
   }

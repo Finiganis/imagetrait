@@ -4,17 +4,16 @@
 # | auteurs: Corentin Ulliac, Axel Viala
 
 CFLAGS = -Wall -Wextra -Werror -pedantic -pedantic-errors -std=c99 \
+		 -Wno-unused-result
 # LDFLAGS =
 
 SRCDIR = ./srcs
 OBJDIR = ./objs
 INCDIR = ./include
-SRCS = image.c noyau.c trans_image.c pgm_image.c noyaux.c pile_image_basic.c \
-	    my_string.c
-
+SRCS = image.c noyau.c trans_image.c pgm_image.c my_string.c
 ifeq ($(DEBUG),yes)
 	CC = gcc
-	CFLAGS += -ggdb3 -fstack-protector-all -Wshadow -Wunreachable-code \
+	CFLAGS += -ggdb -g3 -fstack-protector-all -Wshadow -Wunreachable-code \
 			  -Wstack-protector -pedantic-errors -O0 -W -Wundef -fno-common \
 			  -Wfatal-errors -Wstrict-prototypes -Wmissing-prototypes \
 			  -Wwrite-strings -Wunknown-pragmas \
@@ -22,9 +21,9 @@ ifeq ($(DEBUG),yes)
 			  -Wpointer-arith -Wnested-externs -Wstrict-overflow=5 \
 			  -Wno-missing-field-initializers -Wswitch-default -Wswitch-enum \
 			  -Wbad-function-cast -Wredundant-decls -fno-omit-frame-pointer
-	SRCS = image.c my_string.c pgm_image.c main_test.c
+	SRCS = image.c my_string.c pgm_image.c main_test.c noyau.c trans_image.c
 else
-	SRCS += guimpe.c guimpe_callback.c
+	SRCS += guimpe.c guimpe_callback.c pile_image_basic.c
 	CC = gcc
 	CFLAGS += -O3 `pkg-config --cflags gtk+-2.0`
 	LDFLAGS = `pkg-config --libs gtk+-2.0`

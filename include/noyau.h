@@ -11,5 +11,6 @@ typedef struct {
 noyau_t *creer_noyau(uint32_t dim);
 void detruire_noyau(noyau_t *pn);
 noyau_t *charger_noyau(const char *nom_fichier);
+int core_sum(noyau_t *pn);
 
 #endif

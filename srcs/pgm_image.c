@@ -71,10 +71,9 @@ image_t *charger_image_pgm(const char *nom_fichier) {
     fgets(buffer, TMP_STR_SIZE, file);
     read_funct_t fun_read = read_strategy(buffer);
     if (fun_read) {
-      img = creer_image(nom_fichier);
+      img = creer_image_path(nom_fichier);
       while (fgets(buffer, TMP_STR_SIZE, file) &&
-          (sscanf(buffer, "%zu %zu",
-                  &img->w, &img->h) == 0)) {}
+          (sscanf(buffer, "%zu %zu", &img->w, &img->h) == 0)) {}
       while (fgets(buffer, TMP_STR_SIZE, file) &&
           (sscanf(buffer, "%hhu", &img->maxval) == 0)) {}
       img->buff = fun_read(file, img);
@@ -92,18 +91,23 @@ image_t *charger_image_pgm(const char *nom_fichier) {
 int sauver_image_pgm(const char *nom_fichier, image_t *img) {
   FILE* file = fopen(nom_fichier, "w");
 
-  if (file) {
-    fprintf(file, "%c%d\n%zu %zu\n%d\n",
-        'P', ASCII, img->w, img->h, img->maxval);
-    for (size_t y = 0, x = 0; y < img->h; y++, x = 0) {
-      for (; x < img->w; x++) {
-        const size_t cur = x + y * img->w;
-        fprintf(file, "%hhu\n", img->buff[cur]);
+  if (img && img->buff) {
+    if (file) {
+      fprintf(file, "%c%d\n%zu %zu\n%d\n",
+          'P', ASCII, img->w, img->h, img->maxval);
+      for (size_t y = 0, x = 0; y < img->h; y++, x = 0) {
+        for (; x < img->w; x++) {
+          const size_t cur = x + y * img->w;
+          fprintf(file, "%hhu\n", img->buff[cur]);
+        }
       }
+      fclose(file);
+    } else {
+      perror("sauver_image_pgm: Error impossible to create file.");
+      return 0;
     }
-    fclose(file);
   } else {
-    perror("sauver_image_pgm: Error impossible to create file.");
+    fprintf(stderr, "sauver_image_pgm: invalid image buffer.\n");
     return 0;
   }
   return 1;
